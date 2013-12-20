@@ -62,13 +62,15 @@ struct app_s
     float       fps;                // Aktualni pocet obrazku za sekundu
     bool        flags;              // Flagy aplikace
     bool        active;             // Je aplikace prave aktivni (ma focus?)
-    SDL_Surface *screen_surf;       // SDL_surface pro obrazovku
+    //SDL_Surface *screen_surf;       // SDL_surface pro obrazovku
     myBYTE      *font;              // Ukazatel na font
 };
 
 struct appVid_s
 {
     bool        inited;             // Video inited?
+    SDL_Window  *window;            // SDL window handle
+    SDL_GLContext context;          // OpenGL context
 
     int         cl_width;           // Client width
     int         cl_height;          // Client height
@@ -84,8 +86,8 @@ struct appVid_s
 struct appInp_s
 {
     int             flags;
-    int             keytrans[SDLK_LAST][2];
-    bool            key[SDLK_LAST];
+    //int             keytrans[SDL_NUM_SCANCODES][2];
+    bool            key[SDL_NUM_SCANCODES];
     int             lastkey;
     int             lastkeychar;
     int             joy_num;

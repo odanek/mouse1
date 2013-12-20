@@ -52,7 +52,7 @@ Zpracovani eventu
 void CO_ProcessEvents (void)
 {
     SDL_Event   event;
-    SDL_keysym  key;
+    SDL_Keysym  key;
 
     while (SDL_PollEvent (&event))
     {
@@ -60,13 +60,13 @@ void CO_ProcessEvents (void)
         {
         case SDL_KEYDOWN:
             key = event.key.keysym;
-            g_inp.lastkey = key.sym;
-            g_inp.lastkeychar = g_inp.keytrans[key.sym][(key.mod & KMOD_SHIFT) != 0];
-            g_inp.key[key.sym] = true;
-            P_KeyEvent (g_inp.lastkeychar);
+            g_inp.lastkey = key.scancode;
+            //g_inp.lastkeychar = g_inp.keytrans[key.sym][(key.mod & KMOD_SHIFT) != 0];
+            g_inp.key[key.scancode] = true;
+            P_KeyEvent(g_inp.lastkeychar);
             break;
         case SDL_KEYUP:
-            g_inp.key[event.key.keysym.sym] = false;
+            g_inp.key[event.key.keysym.scancode] = false;
             break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
@@ -84,9 +84,16 @@ void CO_ProcessEvents (void)
         case SDL_QUIT:
             g_app.flags |= APP_FLAG_QUIT;
             break;
-        case SDL_ACTIVEEVENT:
-            g_app.active = event.active.gain == 1;
-            P_ActiveEvent (event.active.gain == 1);
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+            {
+                g_app.active = true;
+            }
+            if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+            {
+                g_app.active = false;
+            }
+            P_ActiveEvent (g_app.active);
             break;
         }
     }
@@ -135,9 +142,13 @@ static void CO_Init (void)
     if (SDL_Init (SDL_INIT_VIDEO) != 0)
         MY_Err (MY_ErrDump ("%S: %s\n", MY_L("COSTR0006|Chyba pri inicializaci grafickeho modu"), SDL_GetError()));
 
-    SDL_WM_SetCaption (APP_NAME, APP_NAME);
-    SDL_WM_SetIcon (SDL_LoadBMP (APP_FILE_ICON), NULL);
-    SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+    SDL_SetWindowTitle(g_vid.window, APP_NAME);
+    
+    SDL_Surface *appIcon = SDL_LoadBMP(APP_FILE_ICON);
+    SDL_SetWindowIcon(g_vid.window, appIcon);
+    SDL_FreeSurface(appIcon);
+
+    //SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
     // Inicializace jadra
     CO_FontLoad (APP_FILE_FONT);

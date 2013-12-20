@@ -41,12 +41,13 @@ static void CO_InpInitKeyTranslation (void)
 {
     int     i;
 
-    for (i = 0; i < SDLK_LAST; i++)
+    for (i = 0; i < SDL_NUM_SCANCODES; i++)
     {
-        g_inp.keytrans[i][0] = g_inp.keytrans[i][1] = i;
+        //g_inp.keytrans[i][0] = g_inp.keytrans[i][1] = i;
         g_inp.key[i] = false;
     }
-    for (i = SDLK_a; i <= SDLK_z; i++)
+    
+    /*for (i = SDLK_a; i <= SDLK_z; i++)
         g_inp.keytrans[i][1] = 'A' + i - SDLK_a;
 
     g_inp.keytrans[SDLK_0][1] = ')';
@@ -89,7 +90,7 @@ static void CO_InpInitKeyTranslation (void)
     g_inp.keytrans[SDLK_KP_PLUS][0] = g_inp.keytrans[SDLK_KP_PLUS][1] = '+';
     g_inp.keytrans[SDLK_KP_EQUALS][0] = g_inp.keytrans[SDLK_KP_EQUALS][1] = '=';
 
-    g_inp.keytrans[SDLK_KP_ENTER][0] = g_inp.keytrans[SDLK_KP_ENTER][1] = SDLK_RETURN;
+    g_inp.keytrans[SDLK_KP_ENTER][0] = g_inp.keytrans[SDLK_KP_ENTER][1] = SDLK_RETURN;*/
 }
 
 /*
@@ -182,7 +183,7 @@ bool CO_InpIsPressed (int code)
     switch (dev)
     {
     case APP_INP_KEY:
-        if (key >= SDLK_LAST)
+        if (key >= SDL_NUM_SCANCODES)
             return false;
         else
             return g_inp.key[key];

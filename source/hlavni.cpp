@@ -48,12 +48,12 @@ void hlavni_Move (void)
         if (move_CanFall (m1Man.X, m1Man.Y))
             m1Man.S = 2;
 
-    if (g_inp.key[SDLK_ESCAPE]) m1End = M1_EXIT;
-    if (g_inp.key[SDLK_UP]) move_Jump (&m1Man);
-    if (g_inp.key[SDLK_DOWN] && m1Man.S == 1) m1Man.S = 2;
-    if (g_inp.key[SDLK_LEFT]) move_Doleva (&m1Man);
-    if (g_inp.key[SDLK_RIGHT]) move_Doprava (&m1Man);
-    if (g_inp.key[SDLK_m] && g_inp.key[SDLK_y] && g_inp.key[SDLK_s]) m1End = M1_NEXT;
+    if (g_inp.key[SDL_SCANCODE_ESCAPE]) m1End = M1_EXIT;
+    if (g_inp.key[SDL_SCANCODE_UP]) move_Jump (&m1Man);
+    if (g_inp.key[SDL_SCANCODE_DOWN] && m1Man.S == 1) m1Man.S = 2;
+    if (g_inp.key[SDL_SCANCODE_LEFT]) move_Doleva (&m1Man);
+    if (g_inp.key[SDL_SCANCODE_RIGHT]) move_Doprava (&m1Man);
+    if (g_inp.key[SDL_SCANCODE_M] && g_inp.key[SDL_SCANCODE_Y] && g_inp.key[SDL_SCANCODE_S]) m1End = M1_NEXT;
     if (m1Man.S == 1) move_Nahoru (&m1Man);
     if (m1Man.S == 2) move_Dolu (&m1Man);
     if (!m1Man.S)

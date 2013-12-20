@@ -93,7 +93,7 @@ void menu_UberZiv (int ziv)
 
 void menu_Blahopreji (void)
 {
-    while (!g_inp.key[SDLK_RETURN] && !(g_app.flags & APP_FLAG_QUIT))
+    while (!g_inp.key[SDL_SCANCODE_RETURN] && !(g_app.flags & APP_FLAG_QUIT))
     {
         draw_ClearBuffer ();
         menu_RedrawLives (0);
@@ -122,7 +122,7 @@ void menu_Uvod (int lev)
         if ((name[i] -= 30) > 32)
             h = i / 2;
 
-    while (!g_inp.key[SDLK_RETURN] && !(g_app.flags & APP_FLAG_QUIT))
+    while (!g_inp.key[SDL_SCANCODE_RETURN] && !(g_app.flags & APP_FLAG_QUIT))
     {
         draw_ClearBuffer ();
         menu_RedrawLives (0);
@@ -182,13 +182,13 @@ void menu_Draw (void)
 
 void menu_Menu (void)
 {
-    int c = CO_InpGetKey (true);
+    int c = CO_InpGetKey(false);
 
-    if (c == '2') 
+    if (c == SDL_SCANCODE_2) 
     {
         m1LoopQuitCode = M1_QC_QUIT;
     }
-    else if (c == '1')
+    else if (c == SDL_SCANCODE_1)
     {
         m1LoopQuitCode = M1_QC_PLAY;
     }
