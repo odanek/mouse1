@@ -49,22 +49,23 @@ void set_Load (void)
 void set_Video (void)
 {
     // Zjisteni aktualniho rozliseni
-    const SDL_VideoInfo *s = SDL_GetVideoInfo ();
+	SDL_DisplayMode currentVideoMode;
+    SDL_GetCurrentDisplayMode(0, &currentVideoMode);
 
     // Nastaveni grafickeho modu
-    VID_SetMode (s->current_w, s->current_h, M1_CL_BPP, M1_CL_AA, true);
+    VID_SetMode (currentVideoMode.w, currentVideoMode.h, M1_CL_BPP, M1_CL_AA, true);
 
     // Spocitame zoom, abychom zabrali co nejvetsi cast obrazovky pri zachovani aspect ratia
     m1RgbBuf.data = m1Data[M1_DAT_SCR_GL];
     m1RgbBuf.width = 320;
     m1RgbBuf.height = 200;
-    if (s->current_w / 320.0f > s->current_h / 200.0f)
+    if (g_vid.cl_width / 320.0f > g_vid.cl_height / 200.0f)
     {
-        m1RgbBuf.zoom = s->current_h / 200.0f;
+        m1RgbBuf.zoom = g_vid.cl_height / 200.0f;
     }
     else
     {
-        m1RgbBuf.zoom = s->current_w / 320.0f;
+        m1RgbBuf.zoom = g_vid.cl_width / 320.0f;
     }
 
     glViewport (g_vid.cl_width / 2 - int(160 * m1RgbBuf.zoom), g_vid.cl_height / 2 - int(100 * m1RgbBuf.zoom), int(320 * m1RgbBuf.zoom), int(200 * m1RgbBuf.zoom));

@@ -32,11 +32,11 @@ Popis: Kontroly pohybu mysi
 
 #include "project.h"
 
-bool move_Can (int X, int Y)
+bool move_Can (float X, float Y)
 {
     int i, j, pos;
 
-    pos = Y * 3200 + X;
+    pos = int(Y) * 3200 + int(X);
     for (j = 0; j < 16; j++, pos += 3190)
         for (i = 0; i < 10; i++, pos++)
             if ((myBYTE) m1Data[M1_DAT_FORE][pos] < 16)
@@ -44,69 +44,81 @@ bool move_Can (int X, int Y)
     return true;
 }
 
-bool move_CanFall (int X, int Y)
+bool move_CanFall (float X, float Y)
 {
     int i, pos;
 
-    if (Y + 16 > 191)
+    if (int(Y) + 16 > 191)
         return false;
 
-    pos = (Y + 16) * 3200 + X;
+    pos = (int(Y) + 16) * 3200 + int(X);
     for (i = 0; i < 10; i++, pos++)
         if ((myBYTE) m1Data[M1_DAT_FORE][pos] < 16)
             return false;
     return true;
 }
 
-void move_Faz (m1ManStruct *m)
+void move_Faz (m1ManStruct *m, float elapsedTime)
 {
-    if (++m->SF >= M1_FAZ_MAX * M1_FAZ_SPEED)
+	m->SF += elapsedTime * APP_FPS_SPEED;
+    if (int(m->SF) >= M1_FAZ_MAX * M1_FAZ_SPEED)
         m->SF = 0;
 }
 
-void move_Doprava (m1ManStruct *m)
+void move_Doprava (m1ManStruct *m, float elapsedTime)
 {
     m->O = M1_ORI_RIGHT;
 
-    if (!move_Can (m->X + 1, m->Y) || m->X + 1 > 3180)
-        return;
+	float oldX = m->X;
+    m->X += elapsedTime * APP_FPS_SPEED;
 
-    m->X++;
-    move_Faz (m);
+    if (!move_Can (m->X, m->Y) || m->X > 3180)
+	{
+		m->X = oldX;
+        return;
+	}
+
+    move_Faz (m, elapsedTime);
 }
 
-void move_Doleva (m1ManStruct *m)
+void move_Doleva (m1ManStruct *m, float elapsedTime)
 {
     m->O = M1_ORI_LEFT;
 
-    if (!move_Can (m->X - 1, m->Y) || m->X - 1 < 1)
-        return;
+	float oldX = m->X;
+    m->X -= elapsedTime * APP_FPS_SPEED;
 
-    m->X--;
-    move_Faz (m);
+    if (!move_Can (m->X, m->Y) || m->X < 1)
+	{
+		m->X = oldX;
+        return;
+	}
+
+    move_Faz (m, elapsedTime);
 }
 
-void move_Nahoru (m1ManStruct *m)
+void move_Nahoru (m1ManStruct *m, float elapsedTime)
 {
     if (!move_Can (m->X, m->Y - 1) || m->Y - 1 < 1 || m->J >= M1_JUMP_MAX)
     {
+		m->J = 0;
         m->S = 2;
         return;
     }
 
-    m->Y--;
-    m->J++;
+    m->Y -= elapsedTime * APP_FPS_SPEED;
+    m->J += elapsedTime * APP_FPS_SPEED;
 }
 
-void move_Dolu (m1ManStruct *m)
+void move_Dolu (m1ManStruct *m, float elapsedTime)
 {
-    if (!move_Can (m->X, m->Y + 1) || m->Y + 1 > 176)
-    {
-        m->S = 0;
-        return;
-    }
+    m->Y += elapsedTime * APP_FPS_SPEED;
 
-    m->Y++;
+    while (!move_Can (m->X, m->Y) || m->Y > 176)
+    {
+		m->Y--;
+        m->S = 0;
+    }
 }
 
 void move_Jump (m1ManStruct *m)

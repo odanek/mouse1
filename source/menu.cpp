@@ -32,14 +32,21 @@ Popis: Menu
 
 #include "project.h"
 
-const char *menuFl[5] =
-    {
-        "levels/lev1.kr3",
-        "levels/lev2.kr3",
-        "levels/lev3.kr3",
-        "levels/lev4.kr3",
-        "levels/lev5.kr3"
-    };
+const char *menuFl[5] = {
+	"levels/lev1.kr3",
+	"levels/lev2.kr3",
+	"levels/lev3.kr3",
+	"levels/lev4.kr3",
+	"levels/lev5.kr3"
+};
+
+static void menu_WaitForEnter(float elapsedTime)
+{
+	if (P_IsKeyPressed(SDLK_RETURN))
+	{
+		m1LoopQuitCode = M1_QC_NEXT;
+	}
+}
 
 void menu_RedrawLives (int ziv)
 {
@@ -72,39 +79,35 @@ void menu_RedrawLives (int ziv)
 
 void menu_UberZiv (int ziv)
 {
-    while (!g_inp.key[SDLK_RETURN] && !(g_app.flags & APP_FLAG_QUIT))
+    draw_ClearBuffer ();
+    menu_RedrawLives (ziv);
+    CO_FontColorPal (m1Pal, 46);
+    if (ziv)
+        CO_FontPrintf (12, 12, "Ztratil jsi zivot");
+    else
     {
-        draw_ClearBuffer ();
-        menu_RedrawLives (ziv);
-        CO_FontColorPal (m1Pal, 46);
-        if (ziv)
-            CO_FontPrintf (12, 12, "Ztratil jsi zivot");
-        else
-        {
-            CO_FontPrintf (16, 12, "Zemrel jsi");
-            m1End = M1_EXIT;
-        }
-        CO_FontColorPal (m1Pal, 6);
-        CO_FontPrintf (14, 24, "STISKNI ENTER");
-        CO_ProcessEvents ();
-        draw_BlitBuffer ();
+        CO_FontPrintf (16, 12, "Zemrel jsi");
+        m1End = M1_EXIT;
     }
+    CO_FontColorPal (m1Pal, 6);
+    CO_FontPrintf (14, 24, "STISKNI ENTER");
+    draw_BlitBuffer ();
+
+	P_DoLoop(menu_WaitForEnter, hlavni_Empty);
 }
 
 void menu_Blahopreji (void)
 {
-    while (!g_inp.key[SDLK_RETURN] && !(g_app.flags & APP_FLAG_QUIT))
-    {
-        draw_ClearBuffer ();
-        menu_RedrawLives (0);
+    draw_ClearBuffer ();
+    menu_RedrawLives (0);
 
-        CO_FontColorPal (m1Pal, 46);
-        CO_FontPrintf (7, 12, "Blahopreji dokoncil jsi hru!");
-        CO_FontColorPal (m1Pal, 6);
-        CO_FontPrintf (14, 24, "STISKNI ENTER");
-        CO_ProcessEvents ();
-        draw_BlitBuffer ();
-    }
+    CO_FontColorPal (m1Pal, 46);
+    CO_FontPrintf (7, 12, "Blahopreji dokoncil jsi hru!");
+    CO_FontColorPal (m1Pal, 6);
+    CO_FontPrintf (14, 24, "STISKNI ENTER");
+    draw_BlitBuffer ();
+
+	P_DoLoop(menu_WaitForEnter, hlavni_Empty);
 }
 
 void menu_Uvod (int lev)
@@ -122,20 +125,18 @@ void menu_Uvod (int lev)
         if ((name[i] -= 30) > 32)
             h = i / 2;
 
-    while (!g_inp.key[SDLK_RETURN] && !(g_app.flags & APP_FLAG_QUIT))
-    {
-        draw_ClearBuffer ();
-        menu_RedrawLives (0);
+    draw_ClearBuffer ();
+    menu_RedrawLives (0);
 
-        CO_FontColorPal (m1Pal, 40);
-        CO_FontPrintf (17, 10, "Level %d", lev);
-        CO_FontColorPal (m1Pal, 6);
-        CO_FontPrintf (14, 24, "STISKNI ENTER");
-        CO_FontColorPal (m1Pal, 44);
-        CO_FontPrintf (20 - h, 12, name);
-        CO_ProcessEvents ();
-        draw_BlitBuffer ();
-    }
+    CO_FontColorPal (m1Pal, 40);
+    CO_FontPrintf (17, 10, "Level %d", lev);
+    CO_FontColorPal (m1Pal, 6);
+    CO_FontPrintf (14, 24, "STISKNI ENTER");
+    CO_FontColorPal (m1Pal, 44);
+    CO_FontPrintf (20 - h, 12, name);
+    draw_BlitBuffer ();
+
+	P_DoLoop(menu_WaitForEnter, hlavni_Empty);
 }
 
 void menu_Play (void)
@@ -180,16 +181,15 @@ void menu_Draw (void)
     draw_BlitBuffer ();
 }
 
-void menu_Menu (void)
+void menu_Update(float elapsedTime)
 {
-    int c = CO_InpGetKey (true);
-
-    if (c == '2') 
-    {
-        m1LoopQuitCode = M1_QC_QUIT;
-    }
-    else if (c == '1')
-    {
-        m1LoopQuitCode = M1_QC_PLAY;
-    }
+	if (P_IsKeyPressed(SDLK_1))
+	{
+		m1LoopQuitCode = M1_QC_PLAY;
+	}
+	if (P_IsKeyPressed(SDLK_2))
+	{
+		m1LoopQuitCode = M1_QC_QUIT;
+	}
 }
+

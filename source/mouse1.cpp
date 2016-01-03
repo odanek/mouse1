@@ -30,34 +30,53 @@ Projekt: The Mouse 1
 Popis: Hlavni soubor
 */
 
+#include <unordered_set>
 #include "project.h"
 
 ///////////////
 // Definice promenych
 //////////////
-int         m1Pos[2] = { 0, 0};
-myBYTE      *m1Data[M1_DATA_SIZE], m1Pal[256][3];
-int         m1End, m1LoopQuitCode;
+std::unordered_set<SDL_Keycode> pressedKeys;
+int m1Pos[2] = { 0, 0};
+myBYTE *m1Data[M1_DATA_SIZE], m1Pal[256][3];
+int m1End, m1LoopQuitCode;
 m1ManStruct m1Man;
-bool        m1InMenu = true;
+bool m1InMenu = true;
 vidRgbBuf_s m1RgbBuf;
 
 /*
 ==================================================
-Zpracovani vstupu z klavesnice
+Spolecne event handlery
 ==================================================
 */
-void P_KeyEvent (int key)
+void P_EventLoop()
 {
+    SDL_Event   event;
+
+    while (SDL_PollEvent (&event))
+    {
+        switch (event.type)
+        {
+		case SDL_KEYDOWN:
+			pressedKeys.insert(event.key.keysym.sym);
+			break;
+		case SDL_KEYUP:
+			pressedKeys.erase(event.key.keysym.sym);
+			break;
+        case SDL_QUIT:
+            g_app.flags |= APP_FLAG_QUIT;
+            break;
+        case SDL_WINDOWEVENT:
+            break;
+		default:
+			break;
+        }
+    }
 }
 
-/*
-==================================================
-Reakce na aktivaci/deaktivaci
-==================================================
-*/
-void P_ActiveEvent (bool active)
+bool P_IsKeyPressed(SDL_Keycode keyCode)
 {
+	return pressedKeys.find(keyCode) != pressedKeys.end();
 }
 
 /*
@@ -65,15 +84,15 @@ void P_ActiveEvent (bool active)
 Smycka - vykresleni, zpracovani eventu
 ==================================================
 */
-int P_DoLoop (void (*move)(void), void (*draw)(void))
+int P_DoLoop (void (*update)(float), void (*draw)(void))
 {
     m1LoopQuitCode = 0;
 
     //CO_FpsReset ();
     while (!(g_app.flags & APP_FLAG_QUIT) && !m1LoopQuitCode)
     {
-        CO_ProcessEvents ();
-        CO_FpsSyncLoops (move, draw);
+        P_EventLoop();
+        CO_FpsSyncLoops(update, draw);
     }
 
     return m1LoopQuitCode;
@@ -90,9 +109,7 @@ void P_Main (void)
 
     while (!(g_app.flags & APP_FLAG_QUIT))
     {
-        while (CO_InpGetKey (false))
-            ;
-        qc = P_DoLoop (menu_Menu, menu_Draw);
+        qc = P_DoLoop (menu_Update, menu_Draw);
 
         if (qc == M1_QC_QUIT)
             break;

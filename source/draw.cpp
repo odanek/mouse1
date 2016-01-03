@@ -57,7 +57,7 @@ static void draw_SetFaz (m1ManStruct *m)
     if (m->S)
         m->F = 8;
     else
-        m->F = m->SF / M1_FAZ_SPEED;
+        m->F = int(m->SF) / M1_FAZ_SPEED;
 
     m->F += 9 * m->O;
 }
@@ -162,6 +162,6 @@ void draw_Draw ()
     draw_SetView (m->X);
     draw_SetFaz (m);
     draw_Layers (m1Data[M1_DAT_FORE]);
-    draw_Image (m->X - m1Pos[M1_FORE], 8 + m->Y, m->F, m1Data[M1_DAT_IMG]);
+    draw_Image (int(m->X) - m1Pos[M1_FORE], 8 + int(m->Y), m->F, m1Data[M1_DAT_IMG]);
     draw_BlitBuffer ();
 }

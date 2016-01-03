@@ -51,7 +51,8 @@ enum
 {
     M1_QC_LOOP,
     M1_QC_QUIT,
-    M1_QC_PLAY
+    M1_QC_PLAY,
+	M1_QC_NEXT
 };
 
 enum
@@ -70,15 +71,17 @@ enum
 
 typedef struct
 {
-    int X;
-    int Y;
+    float X;
+    float Y;
     int F;
     int S;
-    int J;
+    float J;
     int O;
-    int SF;
+    float SF;
     int Live;
 } m1ManStruct;
+
+
 
 extern myBYTE       *m1Data[M1_DATA_SIZE], m1Pal[256][3];
 extern int          m1Pos[2], m1End, m1LoopQuitCode;
@@ -87,7 +90,8 @@ extern bool         m1InMenu;
 extern vidRgbBuf_s  m1RgbBuf;
 
 ///////////////////////////////// Mouse1 /////////////////////////////////
-int     P_DoLoop            (void (*move)(void), void (*draw)(void));
+int     P_DoLoop            (void (*update)(float), void (*draw)(void));
+bool 	P_IsKeyPressed		(SDL_Keycode keyCode);
 
 ///////////////////////////////// Load ///////////////////////////////////
 void    load_Prepare        (m1ManStruct *m);
@@ -99,21 +103,25 @@ void    draw_BlitBuffer     (void);
 void    draw_Draw           (void);
 
 ///////////////////////////////// Hlavni /////////////////////////////////
+
+
+void    hlavni_Empty        (void);
+void	hlavni_ProcessEvents(bool (*eventHandler)(const SDL_Event&));
 void    hlavni_PlayLoop     (void);
 
 ///////////////////////////////// Menu /////////////////////////////////
-void    menu_Menu           (void);
 void    menu_Draw           (void);
 void    menu_RedrawLives    (int ziv);
-void    menu_Play           (void);
+void    menu_Play           ();
+void    menu_Update         (float elapsedTime);
 
 ///////////////////////////////// Move /////////////////////////////////
-bool    move_Can            (int X, int Y);
-bool    move_CanFall        (int X, int Y);
-void    move_Doleva         (m1ManStruct *m);
-void    move_Doprava        (m1ManStruct *m);
-void    move_Nahoru         (m1ManStruct *m);
-void    move_Dolu           (m1ManStruct *m);
+bool    move_Can            (float X, float Y);
+bool    move_CanFall        (float X, float Y);
+void    move_Doleva         (m1ManStruct *m, float elapsedTime);
+void    move_Doprava        (m1ManStruct *m, float elapsedTime);
+void    move_Nahoru         (m1ManStruct *m, float elapsedTime);
+void    move_Dolu           (m1ManStruct *m, float elapsedTime);
 void    move_Jump           (m1ManStruct *m);
 
 #endif

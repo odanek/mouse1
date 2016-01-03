@@ -40,57 +40,9 @@ void    P_KeyEvent      (int key);
 void    P_ActiveEvent   (bool active);
 
 // Deklarace globalnich promenych
-app_s       g_app;
-appVid_s    g_vid;
-appInp_s    g_inp;
-
-/*
-==================================================
-Zpracovani eventu
-==================================================
-*/
-void CO_ProcessEvents (void)
-{
-    SDL_Event   event;
-    SDL_keysym  key;
-
-    while (SDL_PollEvent (&event))
-    {
-        switch (event.type)
-        {
-        case SDL_KEYDOWN:
-            key = event.key.keysym;
-            g_inp.lastkey = key.sym;
-            g_inp.lastkeychar = g_inp.keytrans[key.sym][(key.mod & KMOD_SHIFT) != 0];
-            g_inp.key[key.sym] = true;
-            P_KeyEvent (g_inp.lastkeychar);
-            break;
-        case SDL_KEYUP:
-            g_inp.key[event.key.keysym.sym] = false;
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            if (event.button.button == SDL_BUTTON_LEFT)
-                g_inp.mouse_but[0] = event.button.state == SDL_PRESSED;
-            if (event.button.button == SDL_BUTTON_RIGHT)
-                g_inp.mouse_but[1] = event.button.state == SDL_PRESSED;
-            if (event.button.button == SDL_BUTTON_MIDDLE)
-                g_inp.mouse_but[2] = event.button.state == SDL_PRESSED;
-            break;
-        case SDL_MOUSEMOTION:
-            g_inp.mouse_pos[0] = event.motion.x;
-            g_inp.mouse_pos[1] = event.motion.y;
-            break;
-        case SDL_QUIT:
-            g_app.flags |= APP_FLAG_QUIT;
-            break;
-        case SDL_ACTIVEEVENT:
-            g_app.active = event.active.gain == 1;
-            P_ActiveEvent (event.active.gain == 1);
-            break;
-        }
-    }
-}
+app_s        g_app;
+appVid_s     g_vid;
+sdlContext_s g_sdl;
 
 /*
 ==================================================
@@ -135,17 +87,8 @@ static void CO_Init (void)
     if (SDL_Init (SDL_INIT_VIDEO) != 0)
         MY_Err (MY_ErrDump ("%S: %s\n", MY_L("COSTR0006|Chyba pri inicializaci grafickeho modu"), SDL_GetError()));
 
-    SDL_WM_SetCaption (APP_NAME, APP_NAME);
-    SDL_WM_SetIcon (SDL_LoadBMP (APP_FILE_ICON), NULL);
-    SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
     // Inicializace jadra
-    CO_FontLoad (APP_FILE_FONT);
-
-    // Inicializace vstupnich zarizeni
-    g_inp.flags = APP_INP_INIT_NONE;
-    CO_InpInit (APP_INP_INIT_KEY);
-}
+    CO_FontLoad (APP_FILE_FONT);}
 
 /*
 ==================================================

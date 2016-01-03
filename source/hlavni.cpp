@@ -32,6 +32,10 @@ Popis: Hlavni herni smycka
 
 #include "project.h"
 
+void hlavni_Empty()
+{
+}
+
 void hlavni_Check (int X, int Y)
 {
     int pos, c;
@@ -42,22 +46,49 @@ void hlavni_Check (int X, int Y)
     if (c == 43) m1End = M1_NEXT;
 }
 
-void hlavni_Move (void)
+void hlavni_Update (float elapsedTime)
 {
-    if (!m1Man.S)
-        if (move_CanFall (m1Man.X, m1Man.Y))
-            m1Man.S = 2;
+    if (!m1Man.S && move_CanFall (m1Man.X, m1Man.Y))
+	{
+		m1Man.S = 2;
+	}
 
-    if (g_inp.key[SDLK_ESCAPE]) m1End = M1_EXIT;
-    if (g_inp.key[SDLK_UP]) move_Jump (&m1Man);
-    if (g_inp.key[SDLK_DOWN] && m1Man.S == 1) m1Man.S = 2;
-    if (g_inp.key[SDLK_LEFT]) move_Doleva (&m1Man);
-    if (g_inp.key[SDLK_RIGHT]) move_Doprava (&m1Man);
-    if (g_inp.key[SDLK_m] && g_inp.key[SDLK_y] && g_inp.key[SDLK_s]) m1End = M1_NEXT;
-    if (m1Man.S == 1) move_Nahoru (&m1Man);
-    if (m1Man.S == 2) move_Dolu (&m1Man);
+    if (P_IsKeyPressed(SDLK_ESCAPE))
+	{
+		m1End = M1_EXIT;
+	}
+    if (P_IsKeyPressed(SDLK_UP))
+	{
+		move_Jump(&m1Man);
+	}
+    if (P_IsKeyPressed(SDLK_DOWN) && m1Man.S == 1)
+	{
+		m1Man.S = 2;
+	}
+    if (P_IsKeyPressed(SDLK_LEFT))
+	{
+		move_Doleva (&m1Man, elapsedTime);
+	}
+    if (P_IsKeyPressed(SDLK_RIGHT))
+	{
+		move_Doprava (&m1Man, elapsedTime);
+	}
+    if (P_IsKeyPressed(SDLK_m) && P_IsKeyPressed(SDLK_y) && P_IsKeyPressed(SDLK_s))
+	{
+		m1End = M1_NEXT;
+	}
+    if (m1Man.S == 1)
+	{
+		move_Nahoru (&m1Man, elapsedTime);
+	}
+    if (m1Man.S == 2)
+	{
+		move_Dolu (&m1Man, elapsedTime);
+	}
     if (!m1Man.S)
+	{
         hlavni_Check (m1Man.X, m1Man.Y);
+	}
 
     m1LoopQuitCode = m1End;
 }
@@ -68,5 +99,5 @@ void hlavni_PlayLoop (void)
         m1Man.F = 0;
 
     //CO_FpsReset ();
-    m1End = P_DoLoop (hlavni_Move, draw_Draw);
+    m1End = P_DoLoop (hlavni_Update, draw_Draw);
 }

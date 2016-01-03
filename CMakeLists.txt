@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2)
 
 ############################################################################
 #
@@ -16,19 +16,24 @@ project(Mouse1)
 #########################################################################
 
 # turn off some warnings under msc
-if(WIN32)
+if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")    
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
-endif(WIN32)
+endif(MSVC)
 
-# show all warnings under gcc
-if(UNIX)
-	# gnu compiler
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -mfpmath=sse -msse2")
-	endif(CMAKE_COMPILER_IS_GNUCXX)
-endif(UNIX)       
+# gnu compiler or clang
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -mfpmath=sse -msse2 -std=c++1y")
+endif(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
+# MinGW
+if(MINGW)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
+endif(MINGW)
+
+# platform-independent debug macro
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
+    
 #########################################################################
 #
 # The Mouse 1
@@ -61,7 +66,6 @@ set(M1_SOURCES
     source/core/co_core.h
     source/core/co_font.cpp
     source/core/co_fps.cpp
-    source/core/co_input.cpp
     source/core/co_main.cpp
     source/core/co_vid.cpp
 )
@@ -83,28 +87,36 @@ set_target_properties(${M1_APP_NAME} PROPERTIES VERSION 1.0.0 DEBUG_OUTPUT_NAME 
 # External dependencies
 #########################################################################
 
+# Platform
+if (MINGW)
+    target_link_libraries(${M1_APP_NAME} mingw32)
+endif(MINGW)
+
 # OpenGL
 if(WIN32)
     target_link_libraries(${M1_APP_NAME} opengl32.lib)
-else(WIN32)
+elseif(APPLE)
+    find_library(LIB_OPEN_GL OpenGL DOC "Path to OpenGL framework")
+    target_link_libraries(${M1_APP_NAME} ${LIB_OPEN_GL})
+else(WIN32) # Linux GCC
     find_library(LIB_OPEN_GL GL DOC "Path to OpenGL import library")
     target_link_libraries(${M1_APP_NAME} ${LIB_OPEN_GL})
 endif(WIN32)
 
 # SDL
-find_path(HEADERS_SDL SDL/SDL.h DOC "Path to SDL headers")
-include_directories(${HEADERS_SDL})
-if(WIN32)
-    find_library(LIB_SDL SDL DOC "Path to SDL import library (release version)")
-    find_library(LIB_SDL_MAIN SDLmain DOC "Path to SDLmain import library (release version)")
-    find_library(LIB_SDL_D SDLd DOC "Path to SDL import library (debug version)")
-    find_library(LIB_SDL_MAIN_D SDLmaind DOC "Path to SDLmain import library (debug version)")
-    target_link_libraries(${M1_APP_NAME} optimized ${LIB_SDL} optimized ${LIB_SDL_MAIN} debug ${LIB_SDL_D} debug ${LIB_SDL_MAIN_D})
-else(WIN32)
-    find_library(LIB_SDL SDL DOC "Path to SDL import library")
-    find_library(LIB_SDL_MAIN SDLmain DOC "Path to SDLmain import library")
-    target_link_libraries(${M1_APP_NAME} ${LIB_SDL} ${LIB_SDL_MAIN} ${LIB_SDL_MIXER})
-endif(WIN32)
+if(APPLE)
+    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
+    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
+    target_link_libraries(${M1_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})
+else(APPLE) # MSVC, GCC or MINGW
+    find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
+    include_directories(${HEADERS_SDL2})
+
+    find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
+    find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
+    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
+    target_link_libraries(${M1_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER})
+endif(APPLE)
 
 ########################
 #  Install application

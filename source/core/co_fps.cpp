@@ -40,33 +40,23 @@ move je volana prave APP_FPS_SPEED krat za
 vterinu a draw je volana co nejcasteji
 ==================================================
 */
-void CO_FpsSyncLoops (void (*move) (void), void (*draw) (void))
+void CO_FpsSyncLoops (void (*move) (float), void (*draw) (void))
 {
-    static float    start_time = 0, last_time;
-    static float    cur_time = 0;
-    static int      moves_done = 0;
-    int             i, diff;
+	static Uint32 curTime = 0;
+	Uint32 lastTime = 0;
 
-    last_time = cur_time;
-    cur_time = SDL_GetTicks() / 1000.0f;
+	lastTime = curTime;
+	curTime = SDL_GetTicks();
 
-    // Restart synchronizace
-    if (cur_time - last_time > 0.35f)
-    {
-        start_time = cur_time;
-        moves_done = 0;
-    }
+	// Draw
+	draw();
 
-    // Synchronizace
-    diff = int(APP_FPS_SPEED * (cur_time - start_time)) - moves_done;
-
-    for (i = 0; i < diff; i++, moves_done++)
-        move ();
-
-    if (diff > 0)
-    {
-        draw ();
-    }
+	// Update
+	if (curTime - lastTime < 70)
+	{
+		float elapsedTime = (curTime - lastTime) * 0.001f;;
+		move(elapsedTime);
+	}
 }
 
 /*
