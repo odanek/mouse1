@@ -32,7 +32,7 @@ if(MINGW)
 endif(MINGW)
 
 # platform-independent debug macro
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DD6_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DM1_DEBUG")
     
 #########################################################################
 #
@@ -106,16 +106,14 @@ endif(WIN32)
 # SDL
 if(APPLE)
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 framework")
-    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer framework")
-    target_link_libraries(${M1_APP_NAME} ${LIB_SDL2} ${LIB_SDL2_MIXER})
+    target_link_libraries(${M1_APP_NAME} ${LIB_SDL2})
 else(APPLE) # MSVC, GCC or MINGW
     find_path(HEADERS_SDL2 SDL2/SDL.h DOC "Path to SDL2 headers")
     include_directories(${HEADERS_SDL2})
 
     find_library(LIB_SDL2 SDL2 DOC "Path to SDL2 import library")
     find_library(LIB_SDL2_MAIN SDL2main DOC "Path to SDL2main import library")
-    find_library(LIB_SDL2_MIXER SDL2_mixer DOC "Path to SDL2_mixer import library")
-    target_link_libraries(${M1_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2} ${LIB_SDL2_MIXER})
+    target_link_libraries(${M1_APP_NAME} ${LIB_SDL2_MAIN} ${LIB_SDL2})
 endif(APPLE)
 
 ########################
