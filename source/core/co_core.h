@@ -44,7 +44,6 @@ Popis: Hlavni hlavickovy soubor jadra
 #define APP_VERSION         "3.0.0"
 #define APP_NAME            "The Mouse 1"
 #define APP_FILE_ICON       "data/mouse1_icon.bmp"
-#define APP_FILE_CORE_PCK   "data/mouse1.pck"
 #define APP_FILE_FONT       "data/mouse1.fon"
 #define APP_FPS_SPEED       60
 
